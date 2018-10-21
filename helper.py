@@ -34,6 +34,7 @@ def model_simplernn_factory(num_of_time_steps, stateful, batch_size):
     model.compile(loss='mse', optimizer='rmsprop')
     return model
 
+
 def model_lstm_factory(num_of_time_steps, stateful, batch_size):
     assert type(stateful) == type(True)
     model = Sequential()
@@ -68,6 +69,15 @@ def prepare_data_for_ts_training(one_d_feature, one_d_label, length):
     assert n_steps_feature.shape[0] == one_d_label_from_length.shape[0]
     assert n_steps_feature.shape[1] == length
     return n_steps_feature, one_d_label_from_length
+
+
+def save_loss_vs_iter_plot(vals, name):
+    plt.figure()
+    plt.plot(vals, label=name)
+    plt.legend()
+    plt.savefig(name)
+    plt.clf()
+
 
 def save_loss_vs_iter_plot_with_name(history, length, plot_name):
     plt.figure()

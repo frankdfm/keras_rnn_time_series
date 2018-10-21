@@ -1,4 +1,6 @@
 from __future__ import print_function
+import os
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -98,6 +100,7 @@ for num_input in range(min_length,max_length+1):
 
 	# Train the model
 	print('Training')
+	loss_vs_iter_vals = []
 	for i in range(epochs):
 		print('Epoch', i + 1, '/', epochs)
 		# Note that the last state for sample i in a batch will
@@ -108,13 +111,16 @@ for num_input in range(min_length,max_length+1):
 										  validation_data=(two_d_df_to_three_d(x_test), y_test),
 										  batch_size=batch_size, epochs=1)
 
+		# record the loss in list manually
+		loss_vs_iter_vals.append(history.history['loss'])
+
 		# reset states at the end of each epoch
 		model_lstm_stateful.reset_states()
 
 
-        # Plot and save loss curves of training and test set vs iteration in the same graph
-        ##### PLOT AND SAVE LOSS CURVES #####
-        save_loss_vs_iter_plot_with_name(history, length, "stateful_loss_iter_length_%s.png" % length)
+	# Plot and save loss curves of training and test set vs iteration in the same graph
+    ##### PLOT AND SAVE LOSS CURVES #####
+	save_loss_vs_iter_plot(loss_vs_iter_vals, "lstm_stateful_loss_vs_iter_length_%d.png" % length)
 
 	# Save your model weights with following convention:
 	# For example length 1 input sequences model filename
@@ -126,10 +132,10 @@ for num_input in range(min_length,max_length+1):
 	# Predict 
 	print('Predicting')
 	##### PREDICT #####
-	# predicted_lstm_stateful = model_lstm_stateful.predict()
+	predicted_lstm_stateful = model_lstm_stateful.predict(two_d_df_to_three_d(x_test), batch_size=batch_size)
 
 	##### CALCULATE RMSE #####
-	# lstm_stateful_rmse = 
+	lstm_stateful_rmse = rmse_2array(y_test, predicted_lstm_stateful)[0]
 	lstm_stateful_rmse_list.append(lstm_stateful_rmse)
 
 	# print('tsteps:{}'.format(tsteps))
@@ -138,6 +144,7 @@ for num_input in range(min_length,max_length+1):
 
 
 
+	####################################################################################################################
 	# Create the stateless model
 	print('Creating stateless LSTM Model...')
 	model_lstm_stateless = create_lstm_model(length, False, batch_size)
@@ -145,26 +152,29 @@ for num_input in range(min_length,max_length+1):
 	# Train the model
 	print('Training')
 	##### TRAIN YOUR MODEL #####
-	# model_lstm_stateless.fit()
+	history = model_lstm_stateless.fit(two_d_df_to_three_d(x_train), y_train,
+									  validation_data=(two_d_df_to_three_d(x_test), y_test),
+									  batch_size=batch_size, epochs=epochs)
 
 
 	# Plot and save loss curves of training and test set vs iteration in the same graph
 	##### PLOT AND SAVE LOSS CURVES #####
+	save_loss_vs_iter_plot(history.history['loss'], "lstm_stateless_loss_vs_iter_length_%d.png" % length)
 
 	# Save your model weights with following convention:
 	# For example length 1 input sequences model filename
 	# lstm_stateless_model_weights_length_1.h5
 	##### SAVE MODEL WEIGHTS #####
-	# filename = ''
-	# model_lstm_stateless.save_weights()
+	filename = 'lstm_stateless_model_weigths_length_%s' % length
+	model_lstm_stateless.save_weights(filename)
 
 	# Predict 
 	print('Predicting')
 	##### PREDICT #####
-	# predicted_lstm_stateless = model_lstm_stateless.predict()
+	predicted_lstm_stateless = model_lstm_stateless.predict(two_d_df_to_three_d(x_test), batch_size=batch_size)
 
 	##### CALCULATE RMSE #####
-	# lstm_stateless_rmse = 
+	lstm_stateless_rmse = rmse_2array(y_test, predicted_lstm_stateless)[0]
 	lstm_stateless_rmse_list.append(lstm_stateless_rmse)
 
 	# print('tsteps:{}'.format(tsteps))
@@ -199,6 +209,6 @@ plt.xlabel('length of input sequences')
 plt.ylabel('rmse')
 plt.legend()
 plt.grid()
-plt.show()
+plt.savefig("loss_vs_length_2_curves.png")
 
 

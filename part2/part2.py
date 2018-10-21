@@ -1,4 +1,6 @@
 from __future__ import print_function
+import os
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -102,6 +104,7 @@ for num_input in range(min_length, max_length + 1):
 
     # Train the model
     print('Training')
+    loss_vs_iter_vals = []
     for i in range(epochs):
         print('Epoch', i + 1, '/', epochs)
         # Note that the last state for sample i in a batch will
@@ -112,12 +115,15 @@ for num_input in range(min_length, max_length + 1):
                                          validation_data=(two_d_df_to_three_d(x_test), y_test),
                                          batch_size=batch_size, epochs=1)
 
+        # record the loss in list manually
+        loss_vs_iter_vals.append(history.history['loss'])
+
         # reset states at the end of each epoch
         model_rnn_stateful.reset_states()
 
-        # Plot and save loss curves of training and test set vs iteration in the same graph
-        ##### PLOT AND SAVE LOSS CURVES #####
-        save_loss_vs_iter_plot_with_name(history, length, "stateful_loss_iter_length_%s.png" % length)
+    # Plot and save loss curves of training and test set vs iteration in the same graph
+    ##### PLOT AND SAVE LOSS CURVES #####
+    save_loss_vs_iter_plot(loss_vs_iter_vals, "rnn_stateful_loss_vs_iter_length_%d.png" % length)
 
     # Save your model weights with following convention:
     # For example length 1 input sequences model filename
@@ -154,7 +160,7 @@ for num_input in range(min_length, max_length + 1):
 
     # Plot and save loss curves of training and test set vs iteration in the same graph
     ##### PLOT AND SAVE LOSS CURVES #####
-    save_loss_vs_iter_plot_with_name(history, length, "stateless_loss_iter_length_%s.png" % length)
+    save_loss_vs_iter_plot(history.history['loss'], "rnn_stateless_loss_vs_iter_length_%d.png" % length)
 
     # Save your model weights with following convention:
     # For example length 1 input sequences model filename

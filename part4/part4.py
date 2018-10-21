@@ -155,7 +155,7 @@ for num_input in range(min_length,max_length+1):
 	##### PREDICT #####
 	predicted_rnn_stateless = model_rnn_stateless.predict(two_d_df_to_three_d(x_test), batch_size=batch_size)
 	##### CALCULATE RMSE #####
-	rnn_stateless_rmse = rmse_2array(y_test, predicted_rnn_stateful)[0]
+	rnn_stateless_rmse = rmse_2array(y_test, predicted_rnn_stateless)[0]
 	rnn_stateless_rmse_list.append(rnn_stateless_rmse)
 
 	##### PREDICT #####
@@ -189,7 +189,9 @@ for num_input in range(min_length,max_length+1):
 # 5th row: lstm stateless
 filename = 'all_models_rmse_values.txt'
 ##### PREPARE RMSE ARRAY THAT WILL BE WRITTEN INTO FILE #####
-rmse_arr = np.array([fc_rmse_list, rnn_stateful_rmse_list])
+rmse_arr = np.array([fc_rmse_list,
+					 rnn_stateful_rmse_list, rnn_stateless_rmse_list,
+					 lstm_stateful_rmse_list, lstm_stateless_rmse_list])
 np.savetxt(filename, rmse_arr, fmt='%.6f', delimiter='\t')
 
 print("#" * 33)

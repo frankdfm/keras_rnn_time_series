@@ -131,13 +131,15 @@ for num_input in range(min_length, max_length + 1):
     # plt.legend()
     # plt.savefig("loss_iter_length_%s.png" % length)
     # plt.clf()
-    save_loss_vs_iter_plot(history.history['loss'], "fc_loss_vs_iter_length_%d.png" % length)
+    save_loss_vs_iter_plot(history.history['loss'],
+                           history.history['val_loss'],
+                           "fc_loss_vs_iter_length_%d.png" % length)
 
     # Save your model weights with following convention:
     # For example length 1 input sequences model filename
     # fc_model_weights_length_1.h5
     ##### SAVE MODEL WEIGHTS #####
-    filename = 'fc_model_weights_length_%s_trained.h5' % length
+    filename = 'fc_model_weights_length_%s.h5' % length
     model_fc.save_weights(filename)
 
     # Predict

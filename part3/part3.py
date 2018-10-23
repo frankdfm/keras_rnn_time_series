@@ -101,6 +101,7 @@ for num_input in range(min_length,max_length+1):
 	# Train the model
 	print('Training')
 	loss_vs_iter_vals = []
+	val_loss_vs_iter_vals = []
 	for i in range(epochs):
 		print('Epoch', i + 1, '/', epochs)
 		# Note that the last state for sample i in a batch will
@@ -113,6 +114,7 @@ for num_input in range(min_length,max_length+1):
 
 		# record the loss in list manually
 		loss_vs_iter_vals.append(history.history['loss'])
+		val_loss_vs_iter_vals.append(history.history['val_loss'])
 
 		# reset states at the end of each epoch
 		model_lstm_stateful.reset_states()
@@ -120,13 +122,15 @@ for num_input in range(min_length,max_length+1):
 
 	# Plot and save loss curves of training and test set vs iteration in the same graph
     ##### PLOT AND SAVE LOSS CURVES #####
-	save_loss_vs_iter_plot(loss_vs_iter_vals, "lstm_stateful_loss_vs_iter_length_%d.png" % length)
+	save_loss_vs_iter_plot(loss_vs_iter_vals,
+						   val_loss_vs_iter_vals,
+						   "lstm_stateful_loss_vs_iter_length_%d.png" % length)
 
 	# Save your model weights with following convention:
 	# For example length 1 input sequences model filename
 	# lstm_stateful_model_weights_length_1.h5
 	##### SAVE MODEL WEIGHTS #####
-	filename = 'lstm_stateful_model_weigths_length_%s' % length
+	filename = 'lstm_stateful_model_weigths_length_%s.h5' % length
 	model_lstm_stateful.save_weights(filename)
 
 	# Predict 
@@ -159,13 +163,15 @@ for num_input in range(min_length,max_length+1):
 
 	# Plot and save loss curves of training and test set vs iteration in the same graph
 	##### PLOT AND SAVE LOSS CURVES #####
-	save_loss_vs_iter_plot(history.history['loss'], "lstm_stateless_loss_vs_iter_length_%d.png" % length)
+	save_loss_vs_iter_plot(history.history['loss'],
+						   history.history['val_loss'],
+						   "lstm_stateless_loss_vs_iter_length_%d.png" % length)
 
 	# Save your model weights with following convention:
 	# For example length 1 input sequences model filename
 	# lstm_stateless_model_weights_length_1.h5
 	##### SAVE MODEL WEIGHTS #####
-	filename = 'lstm_stateless_model_weigths_length_%s' % length
+	filename = 'lstm_stateless_model_weigths_length_%s.h5' % length
 	model_lstm_stateless.save_weights(filename)
 
 	# Predict 
